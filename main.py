@@ -125,23 +125,24 @@ def delete_post(id: int):
     conn.commit()
     if  deleted_post ==None :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"the post with id:{id} can't be found")
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
-
     
     
-@app.put("/posts/{id}")
+@app.put("/posts/{id}",status_code=status.HTTP_202_ACCEPTED)
 def update_post(id :int ,payload:post):
-    post_id = find_post(id)
-    if post_id is  None: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"the post with id:{id} can't be found ")
+    # post_id = find_post(id)
+    # if post_id is  None: 
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+    #                         detail=f"the post with id:{id} can't be found ")
     
-    post_dict =payload.dict()
-    post_dict["id"]=id
-    My_Posts[post_id]= post_dict
+    # post_dict =payload.dict()
+    # post_dict["id"]=id
+    # My_Posts[post_id]= post_dict
     
-    return {"message": "Post updated", "post": post_dict}
-     
-     
-     
+    Cursor.execute("""UPDATE posts SET title=%s,content=%s,published=%s where id =%s RETURNING *""",(payload.title,payload.content,payload.published,id))
+    updated_post = Cursor.fetchone()
+    conn.commit()
+    if updated_post == None :
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"the post with id:{id} can't be found ")
+    
+    else:
+        return {"message": "Post updated", "post": updated_post}
