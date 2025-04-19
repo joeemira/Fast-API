@@ -1,6 +1,8 @@
 from sqlite3 import Cursor
 from sys import exception
+from turtle import pos
 from typing import Optional, Union
+from urllib import response
 from fastapi import FastAPI,Response,status,Body,HTTPException
 from fastapi.exception_handlers import http_exception_handler
 from pydantic import BaseModel
@@ -34,7 +36,7 @@ while True :
 
 
 
-# My_Posts=[{"title":"title of post 1","content":"content of post1","id":1 },{"title":"title of post 2","content":"content of post2","id":2 }]
+My_Posts=[{"title":"title of post 1","content":"content of post1","id":1 },{"title":"title of post 2","content":"content of post2","id":2 }]
 
 
 
@@ -111,15 +113,20 @@ def find_post(id: int):
 
 @app.delete("/posts/{id}" ,status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
-    post_id = find_post(id)
-    if post_id is not None: 
-        My_Posts.pop(post_id)
-        return {"message": "Your post has been deleted"}
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"the post with id:{id} can't be found ")
-    
+#     post_id = find_post(id)
+#     if post_id is not None: 
+#         My_Posts.pop(post_id)
+#         return {"message": "Your post has been deleted"}
+#     else:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+#                             detail=f"the post with id:{id} can't be found ")
+    Cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *  """,(id,))
+    deleted_post = Cursor.fetchone()
+    conn.commit()
+    if  deleted_post ==None :
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"the post with id:{id} can't be found")
 
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     
     
