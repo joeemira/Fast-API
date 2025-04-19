@@ -11,9 +11,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import time 
 
-
-
-
 app = FastAPI()
 
 
@@ -28,9 +25,6 @@ while True :
         
         print("the error", error)
         time.sleep(2)
-
-
-
 
 
 
@@ -98,18 +92,19 @@ def getpost(id:int,response:Response): # enforce that the API parameter is int a
     #                         detail=f"post with id:{id} was not found")
     # return post
     Cursor.execute("""SELECT * FROM posts WHERE id = %s""", (id,) ) 
-    r_post = Cursor.fetchone()
-    if not r_post :
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id :{id} was not found")
-    return {"post" : r_post}
+    fetched_posts = Cursor.fetchone()
+    if fetched_posts := Cursor.fetchone():
+        return {"post": fetched_posts}
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id :{id} was not found")
 
 
-''
-def find_post(id: int):
-    for i, p in enumerate(My_Posts):
-        if p["id"] == id:
-            return i
-        return None
+
+# def find_post(id: int):
+#     for i, p in enumerate(My_Posts):
+#         if p["id"] == id:
+#             return i
+#         return None
 
 @app.delete("/posts/{id}" ,status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int):
@@ -123,7 +118,7 @@ def delete_post(id: int):
     Cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *  """,(id,))
     deleted_post = Cursor.fetchone()
     conn.commit()
-    if  deleted_post ==None :
+    if  deleted_post is None :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"the post with id:{id} can't be found")
     
     
@@ -141,8 +136,9 @@ def update_post(id :int ,payload:post):
     Cursor.execute("""UPDATE posts SET title=%s,content=%s,published=%s where id =%s RETURNING *""",(payload.title,payload.content,payload.published,id))
     updated_post = Cursor.fetchone()
     conn.commit()
-    if updated_post == None :
+    if updated_post is None :
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"the post with id:{id} can't be found ")
     
     else:
         return {"message": "Post updated", "post": updated_post}
+    
