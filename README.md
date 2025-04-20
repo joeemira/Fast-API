@@ -1,6 +1,7 @@
-# 📘 FastAPI Posts API
+# 📘 FastAPI Posts API (v1.0)
 
-A simple RESTful API built with **FastAPI** and **PostgreSQL** to perform CRUD operations on blog posts.
+🚧 This is **version 1.0** of the development process.  
+It represents the initial working version of the API, with all core features implemented. Future versions may include authentication, ORM integration, Dockerization, and more.
 
 ---
 
