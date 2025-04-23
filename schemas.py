@@ -32,3 +32,7 @@ class user_response(BaseModel):
     id: int
     created_at: datetime
     email: EmailStr
+    
+    
+class user_login(user_base):
+    pass 
