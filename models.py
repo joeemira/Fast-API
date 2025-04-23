@@ -9,3 +9,12 @@ class POST(Base):
     content = Column(String, index=True)
     published = Column(Boolean, server_default='True', default=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    
