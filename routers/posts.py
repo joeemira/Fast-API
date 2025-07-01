@@ -3,7 +3,7 @@ from .. import models,schemas
 from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
-
+from .. import auth2
 
 router = APIRouter(
     prefix="/posts",
@@ -18,8 +18,9 @@ async def get_posts(db:Session = Depends(get_db)):
 
 
 @router.post("/",status_code=status.HTTP_201_CREATED,response_model=schemas.post_response)
-async def submit_data(payload: schemas.post_create,db:Session = Depends(get_db)):  #make the Payload of the incoming 
-
+async def submit_data(payload: schemas.post_create,db:Session = Depends(get_db),current_user :str = 
+                      Depends(auth2.get_current_user)):  #make the Payload of the incoming ## adding authentication dependency 
+    print(current_user.email)
     new_post = models.POST(**payload.dict())
     db.add(new_post)
     db.commit()
@@ -35,7 +36,8 @@ def get_post(id:int,response:Response,db:Session = Depends(get_db)): # enforce t
 
 
 @router.delete("/{id}" ,status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int,db:Session = Depends(get_db)):
+def delete_post(id: int,db:Session = Depends(get_db),current_user :str = 
+                      Depends(auth2.get_current_user)):
     post = db.query(models.POST).filter(models.POST.id == id).first()
     
     if not post:
@@ -47,7 +49,8 @@ def delete_post(id: int,db:Session = Depends(get_db)):
     
 
 @router.put("/{id}",status_code=status.HTTP_202_ACCEPTED)
-def update_post(id :int ,payload:schemas.post_create ,db:Session = Depends(get_db)):
+def update_post(id :int ,payload:schemas.post_create ,db:Session = Depends(get_db),user_id :str = 
+                      Depends(auth2.get_current_user)):
     
     query_post = db.query(models.POST).filter(models.POST.id == id)
     post = query_post.first()
@@ -60,4 +63,4 @@ def update_post(id :int ,payload:schemas.post_create ,db:Session = Depends(get_d
     db.refresh(post)
     return post
 
-
+        

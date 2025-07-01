@@ -1,7 +1,7 @@
 from datetime import datetime
 import string
 from pydantic import BaseModel ,EmailStr
-
+from typing import Optional
 from app.database import Base
 
 
@@ -36,3 +36,13 @@ class user_response(BaseModel):
     
 class user_login(user_base):
     pass 
+
+
+class Token(BaseModel):
+    access_token: str 
+    token_type:str 
+    
+    
+class TokenData(BaseModel):
+    id: Optional[int]= None
+    
